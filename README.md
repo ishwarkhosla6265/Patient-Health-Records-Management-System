@@ -39,6 +39,34 @@ The application supports patients with multiple encounters. A patient search can
 - Charts for exploring available dataset attributes.
 - Friendly handling of patient IDs that are not present in the system.
 
+## Application Screenshots
+
+The following screenshots show the dashboard and patient-record views of the application.
+
+### Healthcare Analytics Dashboard
+
+![Dashboard filters and key performance indicators](screenshots/01-dashboard-filters.png)
+
+### Patient Demographics
+
+![Patient demographics charts](screenshots/02-patient-demographics.png)
+
+### Hospital Analytics
+
+![Hospital readmission and length-of-stay analytics](screenshots/03-hospital-analytics.png)
+
+### Patient Search and Profile
+
+![Patient search and profile](screenshots/04-patient-profile.png)
+
+### Hospital Encounter Details
+
+![Admission details](screenshots/05-admission-details.png)
+
+![Diagnosis details](screenshots/06-diagnosis-details.png)
+
+![Medication details](screenshots/07-medication-details.png)
+
 ## Technology Stack
 
 | Component | Technology |
