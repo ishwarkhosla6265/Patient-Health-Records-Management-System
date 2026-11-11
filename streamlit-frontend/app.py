@@ -31,8 +31,7 @@ API_URL = "http://localhost:8080/api/patient"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_PATH = os.path.join(BASE_DIR, "data")
 
-DIAGNOSIS_MAPPING_PATH = r"C:\PatientHealthRecords\dataset\diagnosis_mapping_final.csv"
-
+DIAGNOSIS_MAPPING_PATH = os.path.join(DATA_PATH, "diagnosis_mapping_final.csv")
 MAPPING_PATHS = [
 
     r"C:\PatientHealthRecords\dataset\IDS_mapping.csv",
