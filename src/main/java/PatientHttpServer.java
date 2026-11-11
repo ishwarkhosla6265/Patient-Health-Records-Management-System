@@ -12,6 +12,8 @@ import java.net.URLDecoder;
 
 import java.nio.charset.StandardCharsets;
 
+import java.security.MessageDigest;
+
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.concurrent.Executors;
@@ -20,10 +22,19 @@ public class PatientHttpServer {
 
     private static final int PORT = 8080;
 
+    private static final String API_KEY =
+        System.getenv("PATIENT_API_KEY");
+
     private static final ObjectMapper objectMapper =
         new ObjectMapper();
 
     public static void main(String[] args) throws Exception {
+
+        if (API_KEY == null || API_KEY.trim().isEmpty()) {
+            throw new IllegalStateException(
+                "PATIENT_API_KEY environment variable is missing!"
+            );
+        }
 
         HttpServer server = HttpServer.create(
             new InetSocketAddress(PORT), 0
@@ -42,10 +53,9 @@ public class PatientHttpServer {
         System.out.println("==================================");
         System.out.println("Server running at http://localhost:" + PORT);
         System.out.println("Health: http://localhost:8080/api/health");
-        System.out.println("Patient: http://localhost:8080/api/patient?patientId=100000170");
+        System.out.println("Patient API: Protected with API key");
         System.out.println("==================================");
     }
-
 
     static class HealthHandler implements HttpHandler {
 
@@ -61,7 +71,6 @@ public class PatientHttpServer {
         }
     }
 
-
     static class PatientHandler implements HttpHandler {
 
         @Override
@@ -69,12 +78,20 @@ public class PatientHttpServer {
 
             if (!exchange.getRequestMethod().equals("GET")) {
 
-                sendError(
-                    exchange,
-                    405,
-                    "Method not allowed"
-                );
+                sendError(exchange, 405, "Method not allowed");
+                return;
+            }
 
+            String suppliedKey =
+                exchange.getRequestHeaders().getFirst("X-API-Key");
+
+            if (suppliedKey == null ||
+                !MessageDigest.isEqual(
+                    API_KEY.getBytes(StandardCharsets.UTF_8),
+                    suppliedKey.getBytes(StandardCharsets.UTF_8)
+                )) {
+
+                sendError(exchange, 401, "Unauthorized");
                 return;
             }
 
@@ -82,12 +99,7 @@ public class PatientHttpServer {
 
             if (query == null || query.trim().isEmpty()) {
 
-                sendError(
-                    exchange,
-                    400,
-                    "Patient ID is required"
-                );
-
+                sendError(exchange, 400, "Patient ID is required");
                 return;
             }
 
@@ -99,22 +111,14 @@ public class PatientHttpServer {
 
                 if (pair.length == 2 && pair[0].equals("patientId")) {
 
-                    patientId = URLDecoder.decode(
-                        pair[1], "UTF-8"
-                    );
-
+                    patientId = URLDecoder.decode(pair[1], "UTF-8");
                     break;
                 }
             }
 
             if (patientId == null || patientId.trim().isEmpty()) {
 
-                sendError(
-                    exchange,
-                    400,
-                    "Invalid patient ID"
-                );
-
+                sendError(exchange, 400, "Invalid patient ID");
                 return;
             }
 
@@ -127,12 +131,7 @@ public class PatientHttpServer {
 
                 if (patient == null) {
 
-                    sendError(
-                        exchange,
-                        404,
-                        "Patient not found"
-                    );
-
+                    sendError(exchange, 404, "Patient not found");
                     return;
                 }
 
@@ -151,7 +150,6 @@ public class PatientHttpServer {
         }
     }
 
-
     private static void sendError(
             HttpExchange exchange,
             int statusCode,
@@ -164,7 +162,6 @@ public class PatientHttpServer {
 
         sendJson(exchange, statusCode, error);
     }
-
 
     private static void sendJson(
             HttpExchange exchange,
@@ -180,25 +177,9 @@ public class PatientHttpServer {
             "application/json; charset=UTF-8"
         );
 
-        exchange.getResponseHeaders().set(
-            "Access-Control-Allow-Origin",
-            "*"
-        );
-
-        exchange.getResponseHeaders().set(
-            "Access-Control-Allow-Methods",
-            "GET, OPTIONS"
-        );
-
-        exchange.getResponseHeaders().set(
-            "Access-Control-Allow-Headers",
-            "Content-Type"
-        );
-
         exchange.sendResponseHeaders(statusCode, bytes.length);
 
         try (OutputStream os = exchange.getResponseBody()) {
-
             os.write(bytes);
         }
     }
