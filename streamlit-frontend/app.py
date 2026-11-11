@@ -351,14 +351,11 @@ def fetch_patient(patient_id):
     try:
 
         response = requests.get(
-
-            API_URL,
-
-            params={"patientId": patient_id},
-
-            timeout=120
-
-        )
+    API_URL,
+    params={"patientId": patient_id},
+    headers={"X-API-Key": API_KEY},
+    timeout=120
+)
 
         if response.status_code == 200:
 
