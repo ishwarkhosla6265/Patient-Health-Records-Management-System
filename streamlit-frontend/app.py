@@ -28,7 +28,8 @@ st.set_page_config(
 
 API_URL = "http://localhost:8080/api/patient"
 
-DATA_PATH = r"C:\PatientHealthRecords\dataset\processed"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_PATH = os.path.join(BASE_DIR, "data")
 
 DIAGNOSIS_MAPPING_PATH = r"C:\PatientHealthRecords\dataset\diagnosis_mapping_final.csv"
 
