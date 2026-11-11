@@ -26,7 +26,8 @@ st.set_page_config(
 
 )
 
-API_URL = "http://localhost:8080/api/patient"
+API_URL = st.secrets["API_URL"]
+API_KEY = st.secrets["API_KEY"]
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_PATH = os.path.join(BASE_DIR, "data")
